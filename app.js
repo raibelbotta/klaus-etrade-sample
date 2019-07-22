@@ -176,7 +176,7 @@ const requestMarket = symbols => new Promise((resolve, reject) => {
         .catch(reject);
 });
 
-const sendGetQuoteStatistics = () => new Promise(() => {
+const writeOutGetQuoteStatistics = () => new Promise(() => {
     if (!!getQuoteStatistics.length) {
         let successRows = getQuoteStatistics.filter(row => row.resultState == 'SUCCESS'),
             failedRequests = getQuoteStatistics.filter(row => typeof row.resultState == 'undefined' || row.resultState != 'SUCCESS'),
@@ -254,6 +254,7 @@ loadSymbols()
 
             if (counter == 61) {
                 console.log('End at: ', moment().format('H:mm:ss.SSS'));
+                writeOutGetQuoteStatistics();
                 process.exit(0);
             }
         }, null, true);
