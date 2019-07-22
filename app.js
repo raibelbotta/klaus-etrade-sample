@@ -72,8 +72,8 @@ const loadSymbols = () => new Promise((resolve, reject) => {
     getDbPool()
         .then(pool => {
             let queryOptions = {
-                sql: 'SELECT code FROM company WHERE update_quote_today = 1 LIMIT ?',
-                values: 100
+                sql: 'SELECT code FROM company LIMIT ?',
+                values: 200
             };
 
             pool.getConnection((error, connection) => {
@@ -197,7 +197,7 @@ const writeOutGetQuoteStatistics = () => new Promise(resolve => {
 
         plainText += "Number of requests: " + getQuoteStatistics.length + "\n";
         plainText += "Number of successful requests: " + successRows.length + "\n";
-        plainText += "Number of failed requests (usually 'timed out'): " + (getQuoteStatistics.length - successRows.length) + "\n";
+        plainText += "Number of failed requests (usually 'timed out' or 'no response'): " + (getQuoteStatistics.length - successRows.length) + "\n";
         plainText += 'Average time: ' + numeral(averageTime).format('0.00') + "s\n";
         plainText += 'Longest time: ' + numeral(successRows[successRows.length - 1].endedAt.diff(successRows[successRows.length - 1].startedAt, 'seconds', true)).format('0.00') +
             's at ' + moment.tz(successRows[successRows.length - 1].endedAt, 'America/New_York').format('HH:mm:ss.SSS') + "\n";
@@ -243,7 +243,7 @@ loadSymbols()
             let i;
 
             for (i = 0; i < 4; i++) {
-                requestMarket(symbolsList.slice(i * 25, i * 25 + 25))
+                requestMarket(symbolsList.slice(i * 50, i * 50 + 50))
                     .catch(error => {
                         console.log(error);
                         process.exit(1);
