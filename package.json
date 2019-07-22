@@ -1,0 +1,21 @@
+{
+  "name": "etrade-sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "cron": "^1.7.1",
+    "cryptojs": "^2.5.3",
+    "hasha": "^5.0.0",
+    "moment": "^2.24.0",
+    "mysql": "^2.17.1",
+    "request": "^2.88.0",
+    "underscore": "^1.9.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
