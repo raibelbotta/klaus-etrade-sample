@@ -34,7 +34,7 @@ const getDbPool = () => new Promise(resolve => {
             host: 'localhost',
             database: 'etrade',
             user: 'root',
-            password: null
+            password: 'MiroC+3*'
         });
 
         resolve(dbPool);
