@@ -4,7 +4,9 @@ const mysql = require('mysql'),
     Market = require('./etrade/market'),
     _ = require('underscore'),
     cron = require('cron'),
-    moment = require('moment');
+    moment = require('moment'),
+    numeral = require('numeral'),
+    yaml = require('yaml');
 
 const API_CONSUMER_KEY = 'api_consumer_key',
     API_CONSUMER_SECRET = 'api_consumer_secret',
@@ -134,9 +136,7 @@ const processQuote = quote => new Promise(resolve => {
 const requestMarket = symbols => new Promise((resolve, reject) => {
     getMarket()
         .then(market => {
-            let parameters, callStat;
-
-            parameters = {
+            let parameters = {
                 detailFlag: 'all',
                 symbolList: symbols
             };
@@ -145,7 +145,7 @@ const requestMarket = symbols => new Promise((resolve, reject) => {
                 parameters = _.extend(parameters, {overrideSymbolCount: true});
             }
 
-            callStat = {
+            let callStat = {
                 startedAt: moment(),
                 endedAt: null,
                 resultState: '',
@@ -158,25 +158,21 @@ const requestMarket = symbols => new Promise((resolve, reject) => {
                 .getQuote(parameters)
                 .then(quoteResponse => {
                     _.extend(callStat, {resultState: 'SUCCESS'});
-
                     processQuote(quoteResponse);
-
                     resolve();
                 })
                 .catch(error => {
                     _.extend(callStat, {resultState: 'ERROR', request: error.request});
-
-                    reject(error);
+                    //reject(error);
                 })
                 .finally(() => {
                     callStat = _.extend(callStat, {endedAt: moment()});
-                    getQuoteStatistics.push(callStat);
                 });
         })
         .catch(reject);
 });
 
-const writeOutGetQuoteStatistics = () => new Promise(() => {
+const writeOutGetQuoteStatistics = () => new Promise(resolve => {
     if (!!getQuoteStatistics.length) {
         let successRows = getQuoteStatistics.filter(row => row.resultState == 'SUCCESS'),
             failedRequests = getQuoteStatistics.filter(row => typeof row.resultState == 'undefined' || row.resultState != 'SUCCESS'),
@@ -227,6 +223,8 @@ const writeOutGetQuoteStatistics = () => new Promise(() => {
         }
 
         console.log(plainText);
+
+        return resolve();
     }
 
     getQuoteStatistics = [];
@@ -239,7 +237,7 @@ console.log('Started at: ', moment().format('H:mm:ss.SSS'));
 
 loadSymbols()
     .then(symbolsList => {
-        job = new cron.CronJob('* * * * * *', () => {
+        let job = new cron.CronJob('* * * * * *', () => {
             let i;
 
             for (i = 0; i < 4; i++) {
@@ -253,9 +251,12 @@ loadSymbols()
             counter++;
 
             if (counter == 61) {
+                job.stop();
                 console.log('End at: ', moment().format('H:mm:ss.SSS'));
-                writeOutGetQuoteStatistics();
-                process.exit(0);
+                writeOutGetQuoteStatistics()
+                    .then(() => {
+                        process.exit(0);
+                    });
             }
         }, null, true);
     });
