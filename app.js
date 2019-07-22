@@ -13,6 +13,8 @@ const API_CONSUMER_KEY = 'api_consumer_key',
     API_ACCESS_TOKEN_KEY = 'api_access_token',
     API_ACCESS_TOKEN_SECRET = 'api_access_token_secret';
 
+const SECONDS_REQUESTING_API = 120;
+
 let consumer, // only usable by getConsumer
     dbPool, // only usable by getDbPool
     getQuoteStatistics = [];
@@ -250,7 +252,7 @@ loadSymbols()
 
             counter++;
 
-            if (counter == 61) {
+            if (counter == SECONDS_REQUESTING_API + 1) {
                 job.stop();
                 console.log('End at: ', moment().format('H:mm:ss.SSS'));
                 writeOutGetQuoteStatistics()
